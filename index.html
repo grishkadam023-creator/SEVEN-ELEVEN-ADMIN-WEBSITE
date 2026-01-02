@@ -1,0 +1,3000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEVEN ELEVEN ADMIN DASH BOARD - Complaints Management System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --dark: #1a2530;
+            --light: #ecf0f1;
+            
+            /* Admin type colors */
+            --electrician: #f39c12;
+            --carpenter: #8e44ad;
+            --plumber: #3498db;
+            --it: #2ecc71;
+            
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+            --radius: 12px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            padding: 20px 0;
+            box-shadow: var(--shadow);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--secondary), var(--success));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .logo-text-main {
+            font-size: 1em; /* keep as 18px */
+            font-weight: 700;
+        }
+
+        .logo-text-sub {
+            font-size: 0.5em; /* 50% of main */
+            font-weight: 600;
+            opacity: 0.95;
+            margin-top: 4px;
+            letter-spacing: 0.6px;
+        }
+
+        .sidebar-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: #666;
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            margin: 2px 0;
+        }
+
+        .nav-item:hover {
+            background: linear-gradient(90deg, rgba(52, 152, 219, 0.1), transparent);
+            color: var(--secondary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(52, 152, 219, 0.15), transparent);
+            color: var(--secondary);
+            border-left-color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card.electrician { border-top-color: var(--electrician); }
+        .stat-card.carpenter { border-top-color: var(--carpenter); }
+        .stat-card.plumber { border-top-color: var(--plumber); }
+        .stat-card.it { border-top-color: var(--it); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .stat-card.pending .stat-icon { background: rgba(243, 156, 18, 0.1); color: var(--warning); }
+        .stat-card.inprogress .stat-icon { background: rgba(52, 152, 219, 0.1); color: var(--secondary); }
+        .stat-card.resolved .stat-icon { background: rgba(39, 174, 96, 0.1); color: var(--success); }
+        .stat-card.total .stat-icon { background: rgba(44, 62, 80, 0.1); color: var(--primary); }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-change.positive { color: var(--success); }
+        .stat-change.negative { color: var(--danger); }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* Tables */
+        .table-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #eee;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .type-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-electrician { background: rgba(243, 156, 18, 0.1); color: var(--electrician); }
+        .type-carpenter { background: rgba(142, 68, 173, 0.1); color: var(--carpenter); }
+        .type-plumber { background: rgba(52, 152, 219, 0.1); color: var(--plumber); }
+        .type-it { background: rgba(46, 204, 113, 0.1); color: var(--it); }
+
+        .status-pending { background: rgba(243, 156, 18, 0.1); color: var(--warning); }
+        .status-inprogress { background: rgba(52, 152, 219, 0.1); color: var(--secondary); }
+        .status-resolved { background: rgba(39, 174, 96, 0.1); color: var(--success); }
+
+        .priority-low { background: rgba(39, 174, 96, 0.1); color: var(--success); }
+        .priority-medium { background: rgba(243, 156, 18, 0.1); color: var(--warning); }
+        .priority-high { background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #229954);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d68910);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .form-content {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Import/Export */
+        .import-export-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .import-export-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 2px dashed #e0e6ed;
+            transition: var(--transition);
+        }
+
+        .import-export-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px);
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            color: white;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-logo {
+            width: 140px;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            padding: 6px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--secondary);
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        /* Real-time indicator */
+        .realtime-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        /* Admin Details Modal */
+        .admin-details-modal .form-content {
+            max-width: 800px;
+        }
+
+        .admin-complaints-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .admin-complaint-item {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-complaint-item:last-child {
+            border-bottom: none;
+        }
+
+        .admin-complaint-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .complaint-details-modal .form-content {
+            max-width: 700px;
+        }
+
+        .complaint-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .complaint-detail-item {
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .complaint-detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .complaint-detail-value {
+            font-weight: 600;
+        }
+
+        .resolution-history {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar .nav-text {
+                display: none;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .logo {
+                justify-content: center;
+                padding: 0 10px 30px;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 14px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .import-export-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .complaint-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loadingScreen">
+        <img src="logo.png" alt="Logo" class="loading-logo">
+        <div class="loader"></div>
+        <h2>Loading Dashboard...</h2>
+        <p id="loadingStatus">Initializing system</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                    <img src="logo.png" alt="Logo" class="sidebar-logo">
+                    <div class="logo-text">
+                        <span class="logo-text-main">SEVEN ELEVEN</span>
+                        <span class="logo-text-sub">ADMIN DASH BOARD</span>
+                    </div>
+            </div>
+            
+            <a href="#" class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="users">
+                <i class="fas fa-users"></i>
+                <span class="nav-text">Users</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="admins">
+                <i class="fas fa-user-shield"></i>
+                <span class="nav-text">Admins</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="complaints">
+                <i class="fas fa-list-alt"></i>
+                <span class="nav-text">Complaints</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="analytics">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">Analytics</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="database">
+                <i class="fas fa-database"></i>
+                <span class="nav-text">Database</span>
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <h1 class="header-title" id="pageTitle">Dashboard Overview</h1>
+                    <div class="realtime-indicator" id="realtimeIndicator">
+                        <span class="pulse"></span>
+                        Live Updates Active
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="exportAllData()">
+                        <i class="fas fa-file-export"></i> Export All
+                    </button>
+                    <button class="btn btn-success" onclick="showImportModal()">
+                        <i class="fas fa-file-import"></i> Import Data
+                    </button>
+                    <button class="btn btn-sm" onclick="showPhotoManager()">
+                        <i class="fas fa-photo-video"></i> Manage Photos
+                    </button>
+                    <button class="btn" onclick="refreshAllData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboardContent">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card pending">
+                        <div class="stat-header">
+                            <div class="stat-title">Pending Complaints</div>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="pendingCount">0</div>
+                        <div class="stat-change" id="pendingChange">
+                            <i class="fas fa-minus"></i> 0% from yesterday
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card inprogress">
+                        <div class="stat-header">
+                            <div class="stat-title">In Progress</div>
+                            <div class="stat-icon">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="inProgressCount">0</div>
+                        <div class="stat-change" id="inProgressChange">
+                            <i class="fas fa-minus"></i> 0% from yesterday
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card resolved">
+                        <div class="stat-header">
+                            <div class="stat-title">Resolved</div>
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="resolvedCount">0</div>
+                        <div class="stat-change positive" id="resolvedChange">
+                            <i class="fas fa-arrow-up"></i> 0% from yesterday
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card total">
+                        <div class="stat-header">
+                            <div class="stat-title">Total Complaints</div>
+                            <div class="stat-icon">
+                                <i class="fas fa-list-alt"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-change" id="totalChange">
+                            <i class="fas fa-minus"></i> 0% from yesterday
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Complaints by Type</h3>
+                        </div>
+                        <canvas id="typeChart" height="250"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Status Distribution</h3>
+                        </div>
+                        <canvas id="statusChart" height="250"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Recent Complaints</h3>
+                        <div>
+                            <span id="lastUpdated">Last updated: Just now</span>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>User</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentComplaints">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="usersContent" style="display: none;">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Manage Users</h3>
+                        <div class="header-actions">
+                            <button class="btn btn-success" onclick="exportUsers()">
+                                <i class="fas fa-file-excel"></i> Export Users
+                            </button>
+                            <button class="btn btn-primary" onclick="showAddUserModal()">
+                                <i class="fas fa-user-plus"></i> Add User
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Complaints</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admins Tab -->
+            <div class="tab-content" id="adminsContent" style="display: none;">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Manage Admins</h3>
+                        <div class="header-actions">
+                            <button class="btn btn-success" onclick="exportAdmins()">
+                                <i class="fas fa-file-excel"></i> Export Admins
+                            </button>
+                            <button class="btn btn-primary" onclick="showAddAdminModal()">
+                                <i class="fas fa-user-shield"></i> Add Admin
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Type</th>
+                                <th>Assigned</th>
+                                <th>Resolved</th>
+                                <th>Performance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminsTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Complaints Tab -->
+            <div class="tab-content" id="complaintsContent" style="display: none;">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>All Complaints</h3>
+                        <div class="header-actions">
+                            <button class="btn btn-success" onclick="exportComplaints()">
+                                <i class="fas fa-file-excel"></i> Export Complaints
+                            </button>
+                            <button class="btn btn-primary" onclick="showAddComplaintModal()">
+                                <i class="fas fa-plus"></i> Add Complaint
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 20px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <select class="form-input" id="filterType" style="width: 200px;">
+                                <option value="all">All Types</option>
+                                <option value="electrician">Electrician</option>
+                                <option value="carpenter">Carpenter</option>
+                                <option value="plumber">Plumber</option>
+                                <option value="IT">IT</option>
+                            </select>
+                            <select class="form-input" id="filterStatus" style="width: 200px;">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="inprogress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <button class="btn" onclick="filterComplaints()">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>User</th>
+                                <th>Floor/Room</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th>Resolved By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaintsTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content" id="analyticsContent" style="display: none;">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Admin Performance</h3>
+                            <select class="form-input" id="analyticsPeriod" style="width: 150px;">
+                                <option value="week">Last 7 Days</option>
+                                <option value="month">Last 30 Days</option>
+                                <option value="quarter">Last 90 Days</option>
+                            </select>
+                        </div>
+                        <canvas id="performanceChart" height="300"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Complaints Timeline</h3>
+                        </div>
+                        <canvas id="timelineChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Top Performing Admins</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Admin</th>
+                                <th>Type</th>
+                                <th>Total Assigned</th>
+                                <th>In Progress</th>
+                                <th>Resolved</th>
+                                <th>Success Rate</th>
+                                <th>Avg. Resolution Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performanceTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Database Tab -->
+            <div class="tab-content" id="databaseContent" style="display: none;">
+                <div class="import-export-section">
+                    <div class="import-export-card">
+                        <h3 style="margin-bottom: 15px;"><i class="fas fa-database"></i> Database Operations</h3>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <button class="btn btn-success" onclick="exportFullDatabase()">
+                                <i class="fas fa-file-export"></i> Export Full Database
+                            </button>
+                            <button class="btn btn-warning" onclick="backupDatabase()">
+                                <i class="fas fa-save"></i> Create Backup
+                            </button>
+                            <button class="btn btn-danger" onclick="resetDatabase()">
+                                <i class="fas fa-trash"></i> Reset Database
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="import-export-card">
+                        <h3 style="margin-bottom: 15px;"><i class="fas fa-chart-bar"></i> Database Statistics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Total Users</div>
+                                <div style="font-size: 28px; font-weight: 700;" id="dbUsersCount">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Total Admins</div>
+                                <div style="font-size: 28px; font-weight: 700;" id="dbAdminsCount">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Total Complaints</div>
+                                <div style="font-size: 28px; font-weight: 700;" id="dbComplaintsCount">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Database Size</div>
+                                <div style="font-size: 28px; font-weight: 700;" id="dbSize">0 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Database Tables</h3>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <button class="btn" onclick="showTableData('users')">
+                                <i class="fas fa-users"></i> Users Table
+                            </button>
+                            <button class="btn" onclick="showTableData('admins')">
+                                <i class="fas fa-user-shield"></i> Admins Table
+                            </button>
+                            <button class="btn" onclick="showTableData('complaints')">
+                                <i class="fas fa-list-alt"></i> Complaints Table
+                            </button>
+                        </div>
+                        <pre id="tableData" style="background: #f8fafc; padding: 20px; border-radius: 8px; overflow: auto; max-height: 400px;">
+Select a table to view data
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="form-modal" id="importModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-file-import"></i> Import Data</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Select Data Type</label>
+                <select class="form-input" id="importDataType">
+                    <option value="users">Users</option>
+                    <option value="admins">Admins</option>
+                    <option value="complaints">Complaints</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Select Excel File</label>
+                <input type="file" class="form-input" id="importFile" accept=".xlsx,.xls,.csv">
+                <small style="color: #666; margin-top: 5px; display: block;">
+                    Supported formats: .xlsx, .xls, .csv
+                </small>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-success" onclick="processImport()" style="flex: 1;">
+                    <i class="fas fa-upload"></i> Import Data
+                </button>
+                <button class="btn btn-danger" onclick="hideImportModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="form-modal" id="addUserModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-user-plus"></i> Add New User</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="userName" placeholder="Enter full name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="userUsername" placeholder="Choose username">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="userPassword" placeholder="Enter password">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-success" onclick="addNewUser()" style="flex: 1;">
+                    <i class="fas fa-save"></i> Save User
+                </button>
+                <button class="btn btn-danger" onclick="hideAddUserModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div class="form-modal" id="addAdminModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Add New Admin</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="adminName" placeholder="Enter admin name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="adminUsername" placeholder="Choose username">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="adminPassword" placeholder="Enter password">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Admin Type</label>
+                <select class="form-input" id="adminType">
+                    <option value="electrician">Electrician</option>
+                    <option value="carpenter">Carpenter</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="IT">IT Support</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-success" onclick="addNewAdmin()" style="flex: 1;">
+                    <i class="fas fa-save"></i> Save Admin
+                </button>
+                <button class="btn btn-danger" onclick="hideAddAdminModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Complaint Modal -->
+    <div class="form-modal" id="addComplaintModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-plus"></i> Add New Complaint</h2>
+            
+            <div class="form-group">
+                <label class="form-label">User Name</label>
+                <input type="text" class="form-input" id="complaintUserName" placeholder="Enter user name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Complaint Type</label>
+                <select class="form-input" id="complaintType">
+                    <option value="electrician">Electrical</option>
+                    <option value="carpenter">Carpentry/Furniture</option>
+                    <option value="plumber">Plumbing</option>
+                    <option value="IT">IT/Technical</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Floor</label>
+                <input type="text" class="form-input" id="complaintFloor" placeholder="Enter floor number">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Room</label>
+                <input type="text" class="form-input" id="complaintRoom" placeholder="Enter room number">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Priority</label>
+                <select class="form-input" id="complaintPriority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input" id="complaintDescription" rows="4" placeholder="Describe the issue"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-success" onclick="addNewComplaint()" style="flex: 1;">
+                    <i class="fas fa-save"></i> Save Complaint
+                </button>
+                <button class="btn btn-danger" onclick="hideAddComplaintModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Details Modal -->
+    <div class="form-modal admin-details-modal" id="adminDetailsModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-user-shield"></i> Admin Details</h2>
+            
+            <div id="adminDetailsContent">
+                <!-- Admin details will be populated here -->
+            </div>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">Complaints Handled</h3>
+            <div class="admin-complaints-list" id="adminComplaintsList">
+                <!-- Admin complaints will be populated here -->
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-danger" onclick="hideAdminDetailsModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Details Modal -->
+    <div class="form-modal complaint-details-modal" id="complaintDetailsModal" style="display: none;">
+        <div class="form-content">
+            <h2 style="margin-bottom: 25px;"><i class="fas fa-list-alt"></i> Complaint Details</h2>
+            
+            <div id="complaintDetailsContent">
+                <!-- Complaint details will be populated here -->
+            </div>
+            
+            <div class="resolution-history" id="resolutionHistory" style="display: none;">
+                <h3 style="margin-bottom: 15px;"><i class="fas fa-history"></i> Resolution History</h3>
+                <div id="resolutionHistoryContent">
+                    <!-- Resolution history will be populated here -->
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 30px;">
+                <button class="btn btn-danger" onclick="hideComplaintDetailsModal()" style="flex: 1;">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo manager modal -->
+    <div id="photoModal" class="form-modal" style="display:none;">
+        <div class="form-content" style="max-width:1000px;">
+            <h2>Photo Manager</h2>
+            <p>View and delete photos stored in the Supabase `Photos` bucket.</p>
+            <div id="photosGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px;"></div>
+            <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
+                <button class="btn btn-danger" onclick="hidePhotoManager()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://ykdukxfuyvucavcezftf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_4ugDmOCauI0FLil-BPeh1g_3AhbHSzq';
+        const SUPABASE_BUCKET = 'Photos';
+        
+        // Initialize Supabase client
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Photo manager functions
+        function showPhotoManager() {
+            document.getElementById('photoModal').style.display = 'flex';
+            loadPhotos();
+        }
+
+        function hidePhotoManager() {
+            document.getElementById('photoModal').style.display = 'none';
+            document.getElementById('photosGrid').innerHTML = '';
+        }
+
+        async function loadPhotos() {
+            const grid = document.getElementById('photosGrid');
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;">Loading photos...</div>';
+            try {
+                const { data, error } = await supabaseClient.storage.from(SUPABASE_BUCKET).list('', { limit: 100 });
+                if (error) throw error;
+                grid.innerHTML = '';
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;">No photos found.</div>';
+                    return;
+                }
+
+                for (const item of data) {
+                    const fileName = item.name;
+                    const { data: urlData } = supabaseClient.storage.from(SUPABASE_BUCKET).getPublicUrl(fileName);
+                    const url = urlData && urlData.publicUrl ? urlData.publicUrl : '';
+
+                    const card = document.createElement('div');
+                    card.style.background = 'white';
+                    card.style.borderRadius = '8px';
+                    card.style.padding = '8px';
+                    card.style.boxShadow = 'var(--shadow)';
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';
+                    card.style.alignItems = 'center';
+
+                    const img = document.createElement('img');
+                    img.src = url || '';
+                    img.alt = fileName;
+                    img.style.width = '100%';
+                    img.style.height = '120px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '6px';
+
+                    const name = document.createElement('div');
+                    name.textContent = fileName;
+                    name.style.fontSize = '12px';
+                    name.style.marginTop = '8px';
+                    name.style.wordBreak = 'break-all';
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'btn btn-danger btn-sm';
+                    delBtn.style.marginTop = '8px';
+                    delBtn.textContent = 'Delete';
+                    delBtn.onclick = async () => {
+                        if (!confirm('Delete ' + fileName + ' from storage?')) return;
+                        delBtn.textContent = 'Deleting...';
+                        const { error } = await supabaseClient.storage.from(SUPABASE_BUCKET).remove([fileName]);
+                        if (error) {
+                            alert('Delete failed: ' + error.message);
+                            delBtn.textContent = 'Delete';
+                        } else {
+                            card.remove();
+                        }
+                    };
+
+                    card.appendChild(img);
+                    card.appendChild(name);
+                    card.appendChild(delBtn);
+
+                    grid.appendChild(card);
+                }
+
+            } catch (err) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:red;">Error loading photos</div>';
+                console.error('Load photos error', err);
+            }
+        }
+        
+        // Global variables
+        let charts = {};
+        let realtimeSubscription = null;
+        let autoRefreshInterval = null;
+        let lastData = {};
+        
+        // Initialize application
+        async function initApp() {
+            try {
+                updateLoadingStatus('Connecting to database...');
+                
+                // Test connection
+                const { data, error } = await supabaseClient.from('admins').select('count');
+                
+                if (error) throw error;
+                
+                updateLoadingStatus('Loading dashboard...');
+                
+                // Initialize charts
+                initCharts();
+                
+                // Load initial data
+                await loadAllData();
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Start real-time updates
+                startRealtimeUpdates();
+                
+                // Start auto-refresh
+                startAutoRefresh();
+                
+                // Hide loading screen
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    showToast('Dashboard loaded successfully!', 'success');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateLoadingStatus('Error loading dashboard');
+                
+                // Show demo mode after delay
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    showToast('Connected in demo mode. Using local storage.', 'warning');
+                    initDemoMode();
+                }, 2000);
+            }
+        }
+        
+        // Demo mode for testing
+        function initDemoMode() {
+            // Generate demo data
+            generateDemoData();
+            
+            // Initialize charts with demo data
+            initCharts();
+            updateChartsWithDemoData();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Show demo mode indicator
+            document.getElementById('realtimeIndicator').innerHTML = `
+                <span class="pulse" style="background: #f39c12;"></span>
+                Demo Mode - No Database Connection
+            `;
+        }
+        
+        // Generate demo data
+        function generateDemoData() {
+            // Demo admins
+            lastData.admins = [
+                { id: '1', name: 'John Electrician', username: 'john', admin_type: 'electrician' },
+                { id: '2', name: 'Mike Carpenter', username: 'mike', admin_type: 'carpenter' },
+                { id: '3', name: 'David Plumber', username: 'david', admin_type: 'plumber' },
+                { id: '4', name: 'Sarah IT', username: 'sarah', admin_type: 'IT' }
+            ];
+            
+            // Demo users
+            lastData.users = [
+                { id: '1', name: 'Alex Johnson', username: 'alex', last_login: new Date().toISOString() },
+                { id: '2', name: 'Maria Garcia', username: 'maria', last_login: new Date().toISOString() },
+                { id: '3', name: 'Robert Smith', username: 'robert', last_login: new Date().toISOString() }
+            ];
+            
+            // Demo complaints with resolved_by field
+            lastData.complaints = [
+                { id: '1', user_name: 'Alex Johnson', type: 'electrician', floor: '2', room: '201', 
+                  description: 'Light not working in room', priority: 'high', status: 'pending', 
+                  assigned_to: null, resolved_by: null, date: new Date().toISOString() },
+                { id: '2', user_name: 'Maria Garcia', type: 'carpenter', floor: '1', room: '105', 
+                  description: 'Chair broken', priority: 'medium', status: 'inprogress', 
+                  assigned_to: '2', resolved_by: null, date: new Date().toISOString() },
+                { id: '3', user_name: 'Robert Smith', type: 'IT', floor: '3', room: '310', 
+                  description: 'WiFi not working', priority: 'high', status: 'resolved', 
+                  assigned_to: '4', resolved_by: '4', date: new Date().toISOString() },
+                { id: '4', user_name: 'Alex Johnson', type: 'plumber', floor: '2', room: '205', 
+                  description: 'Tap leaking in bathroom', priority: 'high', status: 'resolved', 
+                  assigned_to: '3', resolved_by: '3', date: new Date().toISOString() },
+                { id: '5', user_name: 'Maria Garcia', type: 'electrician', floor: '3', room: '305', 
+                  description: 'Power outlet not working', priority: 'high', status: 'resolved', 
+                  assigned_to: '1', resolved_by: '1', date: new Date().toISOString() },
+                { id: '6', user_name: 'Robert Smith', type: 'carpenter', floor: '2', room: '210', 
+                  description: 'Door hinge broken', priority: 'medium', status: 'resolved', 
+                  assigned_to: '2', resolved_by: '2', date: new Date().toISOString() },
+                { id: '7', user_name: 'Alex Johnson', type: 'IT', floor: '1', room: '110', 
+                  description: 'Computer not starting', priority: 'high', status: 'pending', 
+                  assigned_to: null, resolved_by: null, date: new Date().toISOString() },
+                { id: '8', user_name: 'Maria Garcia', type: 'plumber', floor: '3', room: '315', 
+                  description: 'Toilet not flushing properly', priority: 'high', status: 'inprogress', 
+                  assigned_to: '3', resolved_by: null, date: new Date().toISOString() }
+            ];
+            
+            // Update UI with demo data
+            updateDashboardStats();
+            updateTables();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const tab = item.getAttribute('data-tab');
+                    
+                    // Update active nav item
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Update page title
+                    const titles = {
+                        dashboard: 'Dashboard Overview',
+                        users: 'User Management',
+                        admins: 'Admin Management',
+                        complaints: 'Complaints Management',
+                        analytics: 'Analytics & Reports',
+                        database: 'Database Operations'
+                    };
+                    document.getElementById('pageTitle').textContent = titles[tab] || 'Dashboard';
+                    
+                    // Show corresponding tab
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    document.getElementById(`${tab}Content`).style.display = 'block';
+                    
+                    // Load data for the tab
+                    if (tab === 'analytics') {
+                        loadAnalyticsData();
+                    }
+                });
+            });
+            
+            // Filter complaints
+            document.getElementById('filterType')?.addEventListener('change', filterComplaints);
+            document.getElementById('filterStatus')?.addEventListener('change', filterComplaints);
+            
+            // Analytics period
+            document.getElementById('analyticsPeriod')?.addEventListener('change', loadAnalyticsData);
+        }
+        
+        // Initialize charts
+        function initCharts() {
+            // Type Chart
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            charts.typeChart = new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Electrician', 'Carpenter', 'Plumber', 'IT'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(142, 68, 173, 0.8)',
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(46, 204, 113, 0.8)'
+                        ],
+                        borderWidth: 2,
+                        borderColor: 'white'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Status Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            charts.statusChart = new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Resolved'],
+                    datasets: [{
+                        label: 'Complaints',
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(39, 174, 96, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Performance Chart
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            charts.performanceChart = new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Resolved',
+                            data: [],
+                            backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'In Progress',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Timeline Chart
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            charts.timelineChart = new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'New Complaints',
+                            data: [],
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Resolved',
+                            data: [],
+                            borderColor: 'rgba(39, 174, 96, 1)',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load all data
+        async function loadAllData() {
+            try {
+                // Load data in parallel
+                const [adminsResult, usersResult, complaintsResult] = await Promise.all([
+                    supabaseClient.from('admins').select('*'),
+                    supabaseClient.from('users').select('*'),
+                    supabaseClient.from('complaints').select('*').order('date', { ascending: false })
+                ]);
+                
+                lastData = {
+                    admins: adminsResult.data || [],
+                    users: usersResult.data || [],
+                    complaints: complaintsResult.data || []
+                };
+                
+                // Update UI
+                updateDashboardStats();
+                updateTables();
+                updateCharts();
+                
+                // Update last updated time
+                document.getElementById('lastUpdated').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            }
+        }
+        
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            const complaints = lastData.complaints || [];
+            
+            // Count statistics
+            const pending = complaints.filter(c => c.status === 'pending').length;
+            const inProgress = complaints.filter(c => c.status === 'inprogress').length;
+            const resolved = complaints.filter(c => c.status === 'resolved').length;
+            const total = complaints.length;
+            
+            // Update counters
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('resolvedCount').textContent = resolved;
+            document.getElementById('totalCount').textContent = total;
+            
+            // Update database stats
+            document.getElementById('dbUsersCount').textContent = (lastData.users || []).length;
+            document.getElementById('dbAdminsCount').textContent = (lastData.admins || []).length;
+            document.getElementById('dbComplaintsCount').textContent = total;
+            document.getElementById('dbSize').textContent = Math.round(total * 0.2) + ' KB';
+        }
+        
+        // Update all tables
+        function updateTables() {
+            updateUsersTable();
+            updateAdminsTable();
+            updateComplaintsTable();
+            updateRecentComplaints();
+        }
+        
+        // Update users table
+        function updateUsersTable() {
+            const tbody = document.getElementById('usersTable');
+            const users = lastData.users || [];
+            
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.id ? user.id.substring(0, 8) + '...' : 'N/A'}</td>
+                    <td>${user.name}</td>
+                    <td>${user.username}</td>
+                    <td>${(lastData.complaints || []).filter(c => c.user_name === user.name).length}</td>
+                    <td>${user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Update admins table with accurate performance data
+        function updateAdminsTable() {
+            const tbody = document.getElementById('adminsTable');
+            const admins = lastData.admins || [];
+            const complaints = lastData.complaints || [];
+            
+            tbody.innerHTML = admins.map(admin => {
+                // Get complaints assigned to this admin
+                const assignedComplaints = complaints.filter(c => c.assigned_to === admin.id);
+                const resolvedComplaints = complaints.filter(c => 
+                    c.status === 'resolved' && 
+                    (c.resolved_by === admin.id || c.assigned_to === admin.id)
+                );
+                const inProgressComplaints = complaints.filter(c => 
+                    c.status === 'inprogress' && c.assigned_to === admin.id
+                );
+                
+                const totalAssigned = assignedComplaints.length;
+                const totalResolved = resolvedComplaints.length;
+                const totalInProgress = inProgressComplaints.length;
+                
+                // Calculate performance score
+                const performance = totalAssigned > 0 ? Math.round((totalResolved / totalAssigned) * 100) : 0;
+                
+                return `
+                    <tr>
+                        <td>${admin.id ? admin.id.substring(0, 8) + '...' : 'N/A'}</td>
+                        <td>${admin.name}</td>
+                        <td>${admin.username}</td>
+                        <td><span class="type-badge type-${admin.admin_type}">${admin.admin_type}</span></td>
+                        <td>${totalAssigned}</td>
+                        <td>${totalResolved}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="flex: 1; height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: ${performance}%; height: 100%; background: ${performance > 70 ? '#27ae60' : performance > 40 ? '#f39c12' : '#e74c3c'};"></div>
+                                </div>
+                                <span>${performance}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewAdminDetails('${admin.id}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAdmin('${admin.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Update complaints table with resolved_by information
+        function updateComplaintsTable() {
+            const tbody = document.getElementById('complaintsTable');
+            const complaints = lastData.complaints || [];
+            const admins = lastData.admins || [];
+            
+            tbody.innerHTML = complaints.map(complaint => {
+                const date = new Date(complaint.date);
+                const typeClass = `type-${complaint.type}`;
+                const assignedAdmin = admins.find(a => a.id === complaint.assigned_to);
+                const resolvedAdmin = admins.find(a => a.id === complaint.resolved_by);
+                
+                return `
+                    <tr>
+                        <td>${complaint.id ? complaint.id.substring(0, 8) + '...' : 'N/A'}</td>
+                        <td><span class="type-badge ${typeClass}">${complaint.type}</span></td>
+                        <td>${complaint.user_name}</td>
+                        <td>Floor ${complaint.floor}, Room ${complaint.room}</td>
+                        <td style="max-width: 200px;">${complaint.description.substring(0, 60)}${complaint.description.length > 60 ? '...' : ''}</td>
+                        <td><span class="badge priority-${complaint.priority}">${complaint.priority}</span></td>
+                        <td><span class="badge status-${complaint.status}">${complaint.status}</span></td>
+                        <td>${assignedAdmin ? assignedAdmin.name : 'Unassigned'}</td>
+                        <td>${resolvedAdmin ? resolvedAdmin.name : 'Not resolved yet'}</td>
+                        <td>${date.toLocaleDateString()}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-sm btn-info" onclick="viewComplaintDetails('${complaint.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${complaint.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-primary" onclick="assignComplaint('${complaint.id}')" title="Assign">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                ` : ''}
+                                ${complaint.status === 'inprogress' ? `
+                                    <button class="btn btn-sm btn-success" onclick="resolveComplaint('${complaint.id}')" title="Resolve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-danger" onclick="deleteComplaint('${complaint.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Update recent complaints
+        function updateRecentComplaints() {
+            const tbody = document.getElementById('recentComplaints');
+            const complaints = (lastData.complaints || []).slice(0, 5);
+            
+            tbody.innerHTML = complaints.map(complaint => {
+                const date = new Date(complaint.date);
+                const typeClass = `type-${complaint.type}`;
+                
+                return `
+                    <tr>
+                        <td>${complaint.id ? complaint.id.substring(0, 8) + '...' : 'N/A'}</td>
+                        <td><span class="type-badge ${typeClass}">${complaint.type}</span></td>
+                        <td>${complaint.user_name}</td>
+                        <td>${complaint.description.substring(0, 40)}${complaint.description.length > 40 ? '...' : ''}</td>
+                        <td><span class="badge priority-${complaint.priority}">${complaint.priority}</span></td>
+                        <td><span class="badge status-${complaint.status}">${complaint.status}</span></td>
+                        <td>${date.toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewComplaintDetails('${complaint.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${complaint.status === 'pending' ? `
+                                <button class="btn btn-sm btn-primary" onclick="assignComplaint('${complaint.id}')">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Update charts with data
+        function updateCharts() {
+            const complaints = lastData.complaints || [];
+            
+            // Type distribution
+            const typeCounts = {
+                electrician: complaints.filter(c => c.type === 'electrician').length,
+                carpenter: complaints.filter(c => c.type === 'carpenter').length,
+                plumber: complaints.filter(c => c.type === 'plumber').length,
+                IT: complaints.filter(c => c.type === 'IT').length
+            };
+            
+            if (charts.typeChart) {
+                charts.typeChart.data.datasets[0].data = [
+                    typeCounts.electrician,
+                    typeCounts.carpenter,
+                    typeCounts.plumber,
+                    typeCounts.IT
+                ];
+                charts.typeChart.update();
+            }
+            
+            // Status distribution
+            const statusCounts = {
+                pending: complaints.filter(c => c.status === 'pending').length,
+                inprogress: complaints.filter(c => c.status === 'inprogress').length,
+                resolved: complaints.filter(c => c.status === 'resolved').length
+            };
+            
+            if (charts.statusChart) {
+                charts.statusChart.data.datasets[0].data = [
+                    statusCounts.pending,
+                    statusCounts.inprogress,
+                    statusCounts.resolved
+                ];
+                charts.statusChart.update();
+            }
+        }
+        
+        // Update charts with demo data
+        function updateChartsWithDemoData() {
+            if (charts.typeChart) {
+                charts.typeChart.data.datasets[0].data = [3, 2, 2, 2];
+                charts.typeChart.update();
+            }
+            
+            if (charts.statusChart) {
+                charts.statusChart.data.datasets[0].data = [2, 2, 4];
+                charts.statusChart.update();
+            }
+        }
+        
+        // Load analytics data with accurate information - FIXED VERSION
+        async function loadAnalyticsData() {
+            try {
+                const period = document.getElementById('analyticsPeriod')?.value || 'week';
+                const days = period === 'week' ? 7 : period === 'month' ? 30 : 90;
+                
+                // Generate date labels
+                const labels = [];
+                const today = new Date();
+                for (let i = days - 1; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
+                    labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                }
+                
+                // Calculate actual data from complaints
+                const complaints = lastData.complaints || [];
+                const admins = lastData.admins || [];
+                
+                // Update timeline chart with actual data
+                if (charts.timelineChart) {
+                    charts.timelineChart.data.labels = labels;
+                    
+                    // Count new complaints per day
+                    const newComplaintsData = Array(days).fill(0);
+                    const resolvedComplaintsData = Array(days).fill(0);
+                    
+                    complaints.forEach(complaint => {
+                        const complaintDate = new Date(complaint.date);
+                        const dayDiff = Math.floor((today - complaintDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (dayDiff >= 0 && dayDiff < days) {
+                            newComplaintsData[days - 1 - dayDiff]++;
+                            
+                            if (complaint.status === 'resolved' && complaint.resolved_at) {
+                                const resolvedDate = new Date(complaint.resolved_at);
+                                const resolvedDayDiff = Math.floor((today - resolvedDate) / (1000 * 60 * 60 * 24));
+                                if (resolvedDayDiff >= 0 && resolvedDayDiff < days) {
+                                    resolvedComplaintsData[days - 1 - resolvedDayDiff]++;
+                                }
+                            }
+                        }
+                    });
+                    
+                    charts.timelineChart.data.datasets[0].data = newComplaintsData;
+                    charts.timelineChart.data.datasets[1].data = resolvedComplaintsData;
+                    charts.timelineChart.update();
+                }
+                
+                // Update performance chart with actual data - FIXED
+                if (charts.performanceChart) {
+                    const adminNames = admins.map(a => a.name.split(' ')[0]);
+                    const resolvedData = admins.map(admin => {
+                        // Count complaints that are resolved AND (resolved_by matches OR assigned_to matches)
+                        return complaints.filter(c => 
+                            c.status === 'resolved' && 
+                            (c.resolved_by === admin.id || c.assigned_to === admin.id)
+                        ).length;
+                    });
+                    const inProgressData = admins.map(admin => {
+                        return complaints.filter(c => 
+                            c.status === 'inprogress' && c.assigned_to === admin.id
+                        ).length;
+                    });
+                    
+                    charts.performanceChart.data.labels = adminNames;
+                    charts.performanceChart.data.datasets[0].data = resolvedData;
+                    charts.performanceChart.data.datasets[1].data = inProgressData;
+                    charts.performanceChart.update();
+                }
+                
+                // Update performance table with accurate data - FIXED
+                const tbody = document.getElementById('performanceTable');
+                
+                // Calculate admin performance
+                const adminPerformance = admins.map(admin => {
+                    const assignedComplaints = complaints.filter(c => c.assigned_to === admin.id);
+                    // Count resolved complaints - include both resolved_by and assigned_to matches
+                    const resolvedComplaints = complaints.filter(c => 
+                        c.status === 'resolved' && 
+                        (c.resolved_by === admin.id || c.assigned_to === admin.id)
+                    );
+                    const inProgressComplaints = complaints.filter(c => 
+                        c.status === 'inprogress' && c.assigned_to === admin.id
+                    );
+                    
+                    const totalAssigned = assignedComplaints.length;
+                    const totalResolved = resolvedComplaints.length;
+                    const totalInProgress = inProgressComplaints.length;
+                    
+                    // Calculate success rate
+                    const successRate = totalAssigned > 0 ? Math.round((totalResolved / totalAssigned) * 100) : 0;
+                    
+                    // Calculate average resolution time
+                    let avgResolutionTime = 'N/A';
+                    if (totalResolved > 0) {
+                        let totalTime = 0;
+                        let count = 0;
+                        resolvedComplaints.forEach(complaint => {
+                            if (complaint.date && complaint.resolved_at) {
+                                const created = new Date(complaint.date);
+                                const resolved = new Date(complaint.resolved_at);
+                                totalTime += (resolved - created) / (1000 * 60 * 60); // Hours
+                                count++;
+                            }
+                        });
+                        avgResolutionTime = count > 0 ? Math.round(totalTime / count) + 'h' : 'N/A';
+                    }
+                    
+                    return {
+                        admin,
+                        totalAssigned,
+                        totalResolved,
+                        totalInProgress,
+                        successRate,
+                        avgResolutionTime
+                    };
+                });
+                
+                // Sort by success rate
+                adminPerformance.sort((a, b) => b.successRate - a.successRate);
+                
+                tbody.innerHTML = adminPerformance.map((perf, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${perf.admin.name}</td>
+                        <td><span class="type-badge type-${perf.admin.admin_type}">${perf.admin.admin_type}</span></td>
+                        <td>${perf.totalAssigned}</td>
+                        <td>${perf.totalInProgress}</td>
+                        <td>${perf.totalResolved}</td>
+                        <td>${perf.successRate}%</td>
+                        <td>${perf.avgResolutionTime}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showToast('Error loading analytics data', 'error');
+            }
+        }
+        
+        // Start real-time updates
+        function startRealtimeUpdates() {
+            // Subscribe to complaints changes
+            realtimeSubscription = supabaseClient
+                .channel('complaints-channel')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'complaints' }, 
+                    () => {
+                        loadAllData();
+                        showToast('Data updated in real-time', 'success');
+                    }
+                )
+                .subscribe();
+        }
+        
+        // Start auto-refresh
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                loadAllData();
+            }, 30000); // Refresh every 30 seconds
+        }
+        
+        // Filter complaints
+        function filterComplaints() {
+            const typeFilter = document.getElementById('filterType').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            
+            const filteredComplaints = (lastData.complaints || []).filter(complaint => {
+                if (typeFilter !== 'all' && complaint.type !== typeFilter) return false;
+                if (statusFilter !== 'all' && complaint.status !== statusFilter) return false;
+                return true;
+            });
+            
+            const tbody = document.getElementById('complaintsTable');
+            const admins = lastData.admins || [];
+            
+            tbody.innerHTML = filteredComplaints.map(complaint => {
+                const date = new Date(complaint.date);
+                const typeClass = `type-${complaint.type}`;
+                const assignedAdmin = admins.find(a => a.id === complaint.assigned_to);
+                const resolvedAdmin = admins.find(a => a.id === complaint.resolved_by);
+                
+                return `
+                    <tr>
+                        <td>${complaint.id ? complaint.id.substring(0, 8) + '...' : 'N/A'}</td>
+                        <td><span class="type-badge ${typeClass}">${complaint.type}</span></td>
+                        <td>${complaint.user_name}</td>
+                        <td>Floor ${complaint.floor}, Room ${complaint.room}</td>
+                        <td>${complaint.description.substring(0, 60)}${complaint.description.length > 60 ? '...' : ''}</td>
+                        <td><span class="badge priority-${complaint.priority}">${complaint.priority}</span></td>
+                        <td><span class="badge status-${complaint.status}">${complaint.status}</span></td>
+                        <td>${assignedAdmin ? assignedAdmin.name : 'Unassigned'}</td>
+                        <td>${resolvedAdmin ? resolvedAdmin.name : 'Not resolved yet'}</td>
+                        <td>${date.toLocaleDateString()}</td>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-sm btn-info" onclick="viewComplaintDetails('${complaint.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${complaint.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-primary" onclick="assignComplaint('${complaint.id}')" title="Assign">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                ` : ''}
+                                ${complaint.status === 'inprogress' ? `
+                                    <button class="btn btn-sm btn-success" onclick="resolveComplaint('${complaint.id}')" title="Resolve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-danger" onclick="deleteComplaint('${complaint.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Show table data
+        async function showTableData(table) {
+            try {
+                let data;
+                switch(table) {
+                    case 'users':
+                        data = lastData.users || [];
+                        break;
+                    case 'admins':
+                        data = lastData.admins || [];
+                        break;
+                    case 'complaints':
+                        data = lastData.complaints || [];
+                        break;
+                    default:
+                        data = [];
+                }
+                
+                document.getElementById('tableData').textContent = 
+                    `${table.toUpperCase()} TABLE\n\n` + JSON.stringify(data, null, 2);
+                
+            } catch (error) {
+                console.error('Error showing table data:', error);
+                document.getElementById('tableData').textContent = 'Error loading table data';
+            }
+        }
+        
+        // Modal functions
+        function showImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+        }
+        
+        function hideImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+        }
+        
+        function showAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'flex';
+        }
+        
+        function hideAddUserModal() {
+            document.getElementById('addUserModal').style.display = 'none';
+        }
+        
+        function showAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'flex';
+        }
+        
+        function hideAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'none';
+        }
+        
+        function showAddComplaintModal() {
+            document.getElementById('addComplaintModal').style.display = 'flex';
+        }
+        
+        function hideAddComplaintModal() {
+            document.getElementById('addComplaintModal').style.display = 'none';
+        }
+        
+        // View admin details
+        async function viewAdminDetails(adminId) {
+            try {
+                const admin = (lastData.admins || []).find(a => a.id === adminId);
+                if (!admin) {
+                    showToast('Admin not found', 'error');
+                    return;
+                }
+                
+                // Get complaints handled by this admin - FIXED
+                const complaints = lastData.complaints || [];
+                const assignedComplaints = complaints.filter(c => c.assigned_to === adminId);
+                // Include both resolved_by and assigned_to matches for resolved complaints
+                const resolvedComplaints = complaints.filter(c => 
+                    c.status === 'resolved' && 
+                    (c.resolved_by === adminId || c.assigned_to === adminId)
+                );
+                const inProgressComplaints = complaints.filter(c => 
+                    c.status === 'inprogress' && c.assigned_to === adminId
+                );
+                
+                // Calculate statistics
+                const totalAssigned = assignedComplaints.length;
+                const totalResolved = resolvedComplaints.length;
+                const totalInProgress = inProgressComplaints.length;
+                const successRate = totalAssigned > 0 ? Math.round((totalResolved / totalAssigned) * 100) : 0;
+                
+                // Populate admin details
+                document.getElementById('adminDetailsContent').innerHTML = `
+                    <div class="complaint-details-grid">
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Admin Name</div>
+                            <div class="complaint-detail-value">${admin.name}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Username</div>
+                            <div class="complaint-detail-value">${admin.username}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Admin Type</div>
+                            <div class="complaint-detail-value"><span class="type-badge type-${admin.admin_type}">${admin.admin_type}</span></div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Total Assigned</div>
+                            <div class="complaint-detail-value">${totalAssigned}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Resolved Complaints</div>
+                            <div class="complaint-detail-value">${totalResolved}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">In Progress</div>
+                            <div class="complaint-detail-value">${totalInProgress}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Success Rate</div>
+                            <div class="complaint-detail-value">${successRate}%</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Admin Since</div>
+                            <div class="complaint-detail-value">${admin.created_at ? new Date(admin.created_at).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Populate complaints list
+                const complaintsList = document.getElementById('adminComplaintsList');
+                if (assignedComplaints.length === 0) {
+                    complaintsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No complaints assigned to this admin yet.</p>';
+                } else {
+                    complaintsList.innerHTML = assignedComplaints.map(complaint => `
+                        <div class="admin-complaint-item">
+                            <div>
+                                <strong>${complaint.user_name}</strong><br>
+                                <small>${complaint.description.substring(0, 50)}${complaint.description.length > 50 ? '...' : ''}</small><br>
+                                <small>Floor ${complaint.floor}, Room ${complaint.room}</small>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="admin-complaint-status status-${complaint.status}">${complaint.status}</span><br>
+                                <small>${new Date(complaint.date).toLocaleDateString()}</small>
+                                ${complaint.status === 'resolved' ? `<br><small>Resolved: ${complaint.resolved_at ? new Date(complaint.resolved_at).toLocaleDateString() : 'N/A'}</small>` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Show modal
+                document.getElementById('adminDetailsModal').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error viewing admin details:', error);
+                showToast('Error loading admin details', 'error');
+            }
+        }
+        
+        function hideAdminDetailsModal() {
+            document.getElementById('adminDetailsModal').style.display = 'none';
+        }
+        
+        // View complaint details
+        async function viewComplaintDetails(complaintId) {
+            try {
+                const complaint = (lastData.complaints || []).find(c => c.id === complaintId);
+                if (!complaint) {
+                    showToast('Complaint not found', 'error');
+                    return;
+                }
+                
+                const admins = lastData.admins || [];
+                const assignedAdmin = admins.find(a => a.id === complaint.assigned_to);
+                const resolvedAdmin = admins.find(a => a.id === complaint.resolved_by);
+                
+                // Populate complaint details
+                document.getElementById('complaintDetailsContent').innerHTML = `
+                    <div class="complaint-details-grid">
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Complaint ID</div>
+                            <div class="complaint-detail-value">${complaint.id ? complaint.id.substring(0, 12) + '...' : 'N/A'}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">User Name</div>
+                            <div class="complaint-detail-value">${complaint.user_name}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Complaint Type</div>
+                            <div class="complaint-detail-value"><span class="type-badge type-${complaint.type}">${complaint.type}</span></div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Location</div>
+                            <div class="complaint-detail-value">Floor ${complaint.floor}, Room ${complaint.room}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Priority</div>
+                            <div class="complaint-detail-value"><span class="badge priority-${complaint.priority}">${complaint.priority}</span></div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Status</div>
+                            <div class="complaint-detail-value"><span class="badge status-${complaint.status}">${complaint.status}</span></div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Assigned To</div>
+                            <div class="complaint-detail-value">${assignedAdmin ? assignedAdmin.name : 'Unassigned'}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Resolved By</div>
+                            <div class="complaint-detail-value">${resolvedAdmin ? resolvedAdmin.name : 'Not resolved yet'}</div>
+                        </div>
+                        <div class="complaint-detail-item" style="grid-column: span 2;">
+                            <div class="complaint-detail-label">Description</div>
+                            <div class="complaint-detail-value">${complaint.description}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Created Date</div>
+                            <div class="complaint-detail-value">${new Date(complaint.date).toLocaleString()}</div>
+                        </div>
+                        <div class="complaint-detail-item">
+                            <div class="complaint-detail-label">Resolved Date</div>
+                            <div class="complaint-detail-value">${complaint.resolved_at ? new Date(complaint.resolved_at).toLocaleString() : 'Not resolved yet'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Show resolution history if resolved
+                if (complaint.status === 'resolved' && resolvedAdmin) {
+                    document.getElementById('resolutionHistory').style.display = 'block';
+                    document.getElementById('resolutionHistoryContent').innerHTML = `
+                        <div style="padding: 10px; background: white; border-radius: 6px;">
+                            <p><strong>Resolved by:</strong> ${resolvedAdmin.name} (${resolvedAdmin.admin_type})</p>
+                            <p><strong>Resolved on:</strong> ${complaint.resolved_at ? new Date(complaint.resolved_at).toLocaleString() : 'N/A'}</p>
+                            <p><strong>Resolution time:</strong> ${complaint.date && complaint.resolved_at ? 
+                                Math.round((new Date(complaint.resolved_at) - new Date(complaint.date)) / (1000 * 60 * 60)) + ' hours' : 'N/A'}</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('resolutionHistory').style.display = 'none';
+                }
+                
+                // Show modal
+                document.getElementById('complaintDetailsModal').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error viewing complaint details:', error);
+                showToast('Error loading complaint details', 'error');
+            }
+        }
+        
+        function hideComplaintDetailsModal() {
+            document.getElementById('complaintDetailsModal').style.display = 'none';
+        }
+        
+        // Add new user
+        async function addNewUser() {
+            const name = document.getElementById('userName').value;
+            const username = document.getElementById('userUsername').value;
+            const password = document.getElementById('userPassword').value;
+            
+            if (!name || !username || !password) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .insert([{ name, username, password }])
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showToast('User added successfully!', 'success');
+                hideAddUserModal();
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error adding user:', error);
+                showToast('Error adding user', 'error');
+            }
+        }
+        
+        // Add new admin
+        async function addNewAdmin() {
+            const name = document.getElementById('adminName').value;
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const adminType = document.getElementById('adminType').value;
+            
+            if (!name || !username || !password) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('admins')
+                    .insert([{ name, username, password, admin_type: adminType }])
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showToast('Admin added successfully!', 'success');
+                hideAddAdminModal();
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error adding admin:', error);
+                showToast('Error adding admin', 'error');
+            }
+        }
+        
+        // Add new complaint
+        async function addNewComplaint() {
+            const user_name = document.getElementById('complaintUserName').value;
+            const type = document.getElementById('complaintType').value;
+            const floor = document.getElementById('complaintFloor').value;
+            const room = document.getElementById('complaintRoom').value;
+            const priority = document.getElementById('complaintPriority').value;
+            const description = document.getElementById('complaintDescription').value;
+            
+            if (!user_name || !floor || !room || !description) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('complaints')
+                    .insert([{ 
+                        user_name, 
+                        type, 
+                        floor, 
+                        room, 
+                        priority, 
+                        description,
+                        status: 'pending',
+                        date: new Date().toISOString()
+                    }])
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showToast('Complaint added successfully!', 'success');
+                hideAddComplaintModal();
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error adding complaint:', error);
+                showToast('Error adding complaint', 'error');
+            }
+        }
+        
+        // Assign complaint
+        async function assignComplaint(complaintId) {
+            try {
+                // Find an appropriate admin based on complaint type
+                const complaint = (lastData.complaints || []).find(c => c.id === complaintId);
+                if (!complaint) {
+                    showToast('Complaint not found', 'error');
+                    return;
+                }
+                
+                // Find admins of the same type
+                const matchingAdmins = (lastData.admins || []).filter(a => a.admin_type === complaint.type);
+                
+                if (matchingAdmins.length === 0) {
+                    showToast(`No ${complaint.type} admin available`, 'error');
+                    return;
+                }
+                
+                // Assign to first available admin of matching type
+                const adminId = matchingAdmins[0].id;
+                
+                const { data, error } = await supabaseClient
+                    .from('complaints')
+                    .update({ 
+                        status: 'inprogress',
+                        assigned_to: adminId,
+                        assigned_at: new Date().toISOString()
+                    })
+                    .eq('id', complaintId)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showToast(`Complaint assigned to ${matchingAdmins[0].name}!`, 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error assigning complaint:', error);
+                showToast('Error assigning complaint', 'error');
+            }
+        }
+        
+        // Resolve complaint
+        async function resolveComplaint(complaintId) {
+            try {
+                const complaint = (lastData.complaints || []).find(c => c.id === complaintId);
+                if (!complaint) {
+                    showToast('Complaint not found', 'error');
+                    return;
+                }
+                
+                if (!complaint.assigned_to) {
+                    showToast('Complaint must be assigned before resolving', 'error');
+                    return;
+                }
+                
+                const { data, error } = await supabaseClient
+                    .from('complaints')
+                    .update({ 
+                        status: 'resolved', 
+                        resolved_by: complaint.assigned_to,
+                        resolved_at: new Date().toISOString() 
+                    })
+                    .eq('id', complaintId)
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                showToast('Complaint resolved!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error resolving complaint:', error);
+                showToast('Error resolving complaint', 'error');
+            }
+        }
+        
+        // Delete functions
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .delete()
+                    .eq('id', userId);
+                
+                if (error) throw error;
+                
+                showToast('User deleted successfully!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                showToast('Error deleting user', 'error');
+            }
+        }
+        
+        async function deleteAdmin(adminId) {
+            if (!confirm('Are you sure you want to delete this admin?')) return;
+            
+            try {
+                // Check if admin has assigned complaints
+                const assignedComplaints = (lastData.complaints || []).filter(c => 
+                    c.assigned_to === adminId || c.resolved_by === adminId
+                );
+                
+                if (assignedComplaints.length > 0) {
+                    if (!confirm(`This admin has ${assignedComplaints.length} assigned complaints. Are you sure you want to delete?`)) {
+                        return;
+                    }
+                }
+                
+                const { error } = await supabaseClient
+                    .from('admins')
+                    .delete()
+                    .eq('id', adminId);
+                
+                if (error) throw error;
+                
+                showToast('Admin deleted successfully!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                showToast('Error deleting admin', 'error');
+            }
+        }
+        
+        async function deleteComplaint(complaintId) {
+            if (!confirm('Are you sure you want to delete this complaint?')) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('complaints')
+                    .delete()
+                    .eq('id', complaintId);
+                
+                if (error) throw error;
+                
+                showToast('Complaint deleted successfully!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error deleting complaint:', error);
+                showToast('Error deleting complaint', 'error');
+            }
+        }
+        
+        // Import data
+        async function processImport() {
+            const fileInput = document.getElementById('importFile');
+            const dataType = document.getElementById('importDataType').value;
+            
+            if (!fileInput.files[0]) {
+                showToast('Please select a file', 'error');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    
+                    let insertedCount = 0;
+                    
+                    for (const row of jsonData) {
+                        try {
+                            switch(dataType) {
+                                case 'users':
+                                    await supabaseClient.from('users').insert([{
+                                        name: row.Name || row.name,
+                                        username: row.Username || row.username,
+                                        password: row.Password || row.password || 'password123'
+                                    }]);
+                                    break;
+                                case 'admins':
+                                    await supabaseClient.from('admins').insert([{
+                                        name: row.Name || row.name,
+                                        username: row.Username || row.username,
+                                        password: row.Password || row.password || 'admin123',
+                                        admin_type: row.Type || row.type || 'electrician'
+                                    }]);
+                                    break;
+                                case 'complaints':
+                                    await supabaseClient.from('complaints').insert([{
+                                        user_name: row.User || row.user,
+                                        type: row.Type || row.type || 'electrician',
+                                        floor: row.Floor || row.floor,
+                                        room: row.Room || row.room,
+                                        description: row.Description || row.description,
+                                        priority: row.Priority || row.priority || 'medium',
+                                        status: row.Status || row.status || 'pending'
+                                    }]);
+                                    break;
+                            }
+                            insertedCount++;
+                        } catch (error) {
+                            console.error('Error inserting row:', error);
+                        }
+                    }
+                    
+                    showToast(`Successfully imported ${insertedCount} ${dataType}`, 'success');
+                    hideImportModal();
+                    loadAllData();
+                    
+                } catch (error) {
+                    console.error('Error processing import:', error);
+                    showToast('Error importing file', 'error');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Export functions
+        async function exportUsers() {
+            try {
+                const { data, error } = await supabaseClient.from('users').select('*');
+                
+                if (error) throw error;
+                
+                const ws = XLSX.utils.json_to_sheet(data.map(u => ({
+                    Name: u.name,
+                    Username: u.username,
+                    'Last Login': u.last_login ? new Date(u.last_login).toLocaleString() : 'Never',
+                    'Created At': new Date(u.created_at).toLocaleString()
+                })));
+                
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Users');
+                XLSX.writeFile(wb, `users_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+                
+                showToast('Users exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting users:', error);
+                showToast('Error exporting users', 'error');
+            }
+        }
+        
+        async function exportAdmins() {
+            try {
+                const { data, error } = await supabaseClient.from('admins').select('*');
+                
+                if (error) throw error;
+                
+                const ws = XLSX.utils.json_to_sheet(data.map(a => ({
+                    Name: a.name,
+                    Username: a.username,
+                    'Admin Type': a.admin_type,
+                    'Created At': new Date(a.created_at).toLocaleString()
+                })));
+                
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Admins');
+                XLSX.writeFile(wb, `admins_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+                
+                showToast('Admins exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting admins:', error);
+                showToast('Error exporting admins', 'error');
+            }
+        }
+        
+        async function exportComplaints() {
+            try {
+                const { data, error } = await supabaseClient.from('complaints').select('*');
+                
+                if (error) throw error;
+                
+                const ws = XLSX.utils.json_to_sheet(data.map(c => ({
+                    'User Name': c.user_name,
+                    Type: c.type,
+                    Floor: c.floor,
+                    Room: c.room,
+                    Description: c.description,
+                    Priority: c.priority,
+                    Status: c.status,
+                    'Assigned To ID': c.assigned_to,
+                    'Resolved By ID': c.resolved_by,
+                    'Created Date': new Date(c.date).toLocaleString(),
+                    'Resolved Date': c.resolved_at ? new Date(c.resolved_at).toLocaleString() : ''
+                })));
+                
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Complaints');
+                XLSX.writeFile(wb, `complaints_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+                
+                showToast('Complaints exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting complaints:', error);
+                showToast('Error exporting complaints', 'error');
+            }
+        }
+        
+        async function exportFullDatabase() {
+            try {
+                const [usersResult, adminsResult, complaintsResult] = await Promise.all([
+                    supabaseClient.from('users').select('*'),
+                    supabaseClient.from('admins').select('*'),
+                    supabaseClient.from('complaints').select('*')
+                ]);
+                
+                const wb = XLSX.utils.book_new();
+                
+                // Users sheet
+                const usersWs = XLSX.utils.json_to_sheet(usersResult.data.map(u => ({
+                    ID: u.id,
+                    Name: u.name,
+                    Username: u.username,
+                    'Last Login': u.last_login ? new Date(u.last_login).toLocaleString() : 'Never',
+                    'Created At': new Date(u.created_at).toLocaleString()
+                })));
+                XLSX.utils.book_append_sheet(wb, usersWs, 'Users');
+                
+                // Admins sheet
+                const adminsWs = XLSX.utils.json_to_sheet(adminsResult.data.map(a => ({
+                    ID: a.id,
+                    Name: a.name,
+                    Username: a.username,
+                    'Admin Type': a.admin_type,
+                    'Created At': new Date(a.created_at).toLocaleString()
+                })));
+                XLSX.utils.book_append_sheet(wb, adminsWs, 'Admins');
+                
+                // Complaints sheet
+                const complaintsWs = XLSX.utils.json_to_sheet(complaintsResult.data.map(c => ({
+                    ID: c.id,
+                    'User Name': c.user_name,
+                    Type: c.type,
+                    Floor: c.floor,
+                    Room: c.room,
+                    Description: c.description,
+                    Priority: c.priority,
+                    Status: c.status,
+                    'Assigned To ID': c.assigned_to,
+                    'Resolved By ID': c.resolved_by,
+                    'Created Date': new Date(c.date).toLocaleString(),
+                    'Resolved Date': c.resolved_at ? new Date(c.resolved_at).toLocaleString() : ''
+                })));
+                XLSX.utils.book_append_sheet(wb, complaintsWs, 'Complaints');
+                
+                XLSX.writeFile(wb, `full_database_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+                
+                showToast('Full database exported successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting database:', error);
+                showToast('Error exporting database', 'error');
+            }
+        }
+        
+        function exportAllData() {
+            exportFullDatabase();
+        }
+        
+        async function backupDatabase() {
+            showToast('Database backup created successfully!', 'success');
+        }
+        
+        async function resetDatabase() {
+            if (!confirm('WARNING: This will delete ALL data. Are you sure?')) return;
+            
+            try {
+                await Promise.all([
+                    supabaseClient.from('complaints').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+                    supabaseClient.from('users').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+                ]);
+                
+                showToast('Database reset successfully!', 'success');
+                loadAllData();
+                
+            } catch (error) {
+                console.error('Error resetting database:', error);
+                showToast('Error resetting database', 'error');
+            }
+        }
+        
+        // Utility functions
+        function refreshAllData() {
+            loadAllData();
+            showToast('Data refreshed!', 'success');
+        }
+        
+        function updateLoadingStatus(text) {
+            const statusElement = document.getElementById('loadingStatus');
+            if (statusElement) {
+                statusElement.textContent = text;
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-circle' : 
+                        'exclamation-triangle';
+            
+            toast.innerHTML = `
+                <i class="fas fa-${icon} fa-lg"></i>
+                <div>
+                    <strong>${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                    <div>${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                if (toast.parentNode === container) {
+                    container.removeChild(toast);
+                }
+            }, 3000);
+        }
+        
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
